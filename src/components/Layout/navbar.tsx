@@ -8,6 +8,7 @@ import {
     NavigationMenuTrigger,
     NavigationMenuViewport,
   } from "@/components/ui/navigation-menu"
+import { SidebarTrigger } from "../ui/sidebar";
   
 export function Navbar() {
     return(
@@ -15,10 +16,7 @@ export function Navbar() {
             <NavigationMenu>
                 <NavigationMenuList>
                     <NavigationMenuItem>
-                        <NavigationMenuTrigger>Item One</NavigationMenuTrigger>
-                        <NavigationMenuContent>
-                            <NavigationMenuLink>Link</NavigationMenuLink>
-                        </NavigationMenuContent>
+                        <NavigationMenuTrigger><SidebarTrigger /></NavigationMenuTrigger>
                     </NavigationMenuItem>
                </NavigationMenuList>
             </NavigationMenu>
