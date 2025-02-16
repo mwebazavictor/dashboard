@@ -1,7 +1,8 @@
+import AgentCard from "@/components/agent-card"
 export default function Dashboard() {
     return(
-        <div>
-            ...
+        <div >
+            <AgentCard />
         </div>
     )
 }

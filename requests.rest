@@ -4,7 +4,7 @@
 
 # create user
 ###
-POST http://localhost:3000/api/v1/auth/register HTTP/1.1
+POST https://multi-agents-production.up.railway.app/api/v1/auth/register HTTP/1.1
 content-type: application/json
 # Authorization: Bearer 
 
@@ -21,7 +21,7 @@ content-type: application/json
 
 # create user
 ###
-POST http://localhost:3000/api/v1/users HTTP/1.1
+POST https://multi-agents-production.up.railway.app/api/v1/users HTTP/1.1
 content-type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3YWRiYzk3ZjZhNDljZWM5ZDFlZjZkZSIsIm5hbWUiOiJTc2VuZGVnZXlhIEFsYmVydCIsImlhdCI6MTczOTYwMDEwMiwiZXhwIjoxNzM5NjAxOTAyfQ.Av8eidep70KQ10SY9GZmjayHqEByysp5QEYpUofnbkI
 
@@ -30,16 +30,17 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3YWRiYzk3Z
   "email":"aine@gmail.com",
   "password":"123456",
   "phone":"0785557587",
-  "role":"user",
+  "role":"user", 
   "company_id":"67ac71d52103cc38e19928f7"
 
 }
+### admin, developer, user
 ###
 
 
 ###
 # api to get all users
-GET http://localhost:3000/api/v1/users HTTP/1.1
+GET https://multi-agents-production.up.railway.app/api/v1/users HTTP/1.1
 content-type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3YWM3MWQ1MjEwM2NjMzhlMTk5MjhmOSIsIm5hbWUiOiJTc2VuZGVnZXlhIEFsYmVydCIsImlhdCI6MTczOTUxNzUwOCwiZXhwIjoxNzM5NTE5MzA4fQ.kn5c31oVl5RuubzvPHEJO0tELciX0jqdZtc8lz2H7GE
 
@@ -48,7 +49,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3YWM3MWQ1M
 
 ###
 # api to get single users
-GET http://localhost:3000/api/v1/users/67ab41f7995d9e1edc0fc1bb HTTP/1.1
+GET https://multi-agents-production.up.railway.app/api/v1/users/67ab41f7995d9e1edc0fc1bb HTTP/1.1
 content-type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3YWM3MWQ1MjEwM2NjMzhlMTk5MjhmOSIsIm5hbWUiOiJTc2VuZGVnZXlhIEFsYmVydCIsImlhdCI6MTczOTUxNzUwOCwiZXhwIjoxNzM5NTE5MzA4fQ.kn5c31oVl5RuubzvPHEJO0tELciX0jqdZtc8lz2H7GE
 ###
@@ -58,7 +59,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3YWM3MWQ1M
 
 #  coleb and victor
 ###
-POST http://localhost:3000/api/v1/auth/login HTTP/1.1
+POST https://multi-agents-production.up.railway.app/api/v1/auth/login HTTP/1.1
 content-type: application/json
 # Authorization: Bearer 
 
@@ -72,7 +73,7 @@ content-type: application/json
 
 ###
 # get new access token and refresh token
-POST http://localhost:3000/api/v1/auth/token HTTP/1.1
+POST https://multi-agents-production.up.railway.app/api/v1/auth/token HTTP/1.1
 content-type: application/json
 # Authorization: Bearer 
 
@@ -82,7 +83,7 @@ content-type: application/json
 ###
 
 
-POST http://localhost:3000/api/v1/auth/logout HTTP/1.1
+POST https://multi-agents-production.up.railway.app/api/v1/auth/logout HTTP/1.1
 content-type: application/json
 # Authorization: Bearer 
 
@@ -95,7 +96,7 @@ content-type: application/json
 
 
 ###
-POST http://localhost:3000/api/v1/company HTTP/1.1
+POST https://multi-agents-production.up.railway.app/api/v1/company HTTP/1.1
 content-type: application/json
 # Authorization: Bearer 
 
@@ -116,15 +117,15 @@ content-type: application/json
 ###
 
 # get single company data
-GET http://localhost:3000/api/v1/company/67ac71d52103cc38e19928f7 HTTP/1.1
+GET https://multi-agents-production.up.railway.app/api/v1/company/67ac71d52103cc38e19928f7 HTTP/1.1
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3YWRiYzk3ZjZhNDljZWM5ZDFlZjZkZSIsIm5hbWUiOiJTc2VuZGVnZXlhIEFsYmVydCIsImlhdCI6MTczOTYwMDEwMiwiZXhwIjoxNzM5NjAxOTAyfQ.Av8eidep70KQ10SY9GZmjayHqEByysp5QEYpUofnbkI
 
 ###
 
 
 # get single company data
-GET http://localhost:3000/api/v1/company/67ac71d52103cc38e19928f7 HTTP/1.1
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3YWM3MWQ1MjEwM2NjMzhlMTk5MjhmOSIsIm5hbWUiOiJTc2VuZGVnZXlhIEFsYmVydCIsImlhdCI6MTczOTQzOTM4MywiZXhwIjoxNzM5NDQxMTgzfQ.7hjqlw9snnExy1_j5AuvhHe66zdiksvM-uChCSYrgBU
+GET https://multi-agents-production.up.railway.app/api/v1/company/67adc39652580f146cee9242 HTTP/1.1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3YWRjMzk2NTI1ODBmMTQ2Y2VlOTI0NCIsIm5hbWUiOiJTc2VuZGVnZXlhIEFsYmVydCIsImlhdCI6MTczOTY1NTIxNywiZXhwIjoxNzM5NjU3MDE3fQ.yIlOWmNCqMc9KKFGaZI_sk7FQX73gWNp2bJzwamZwVg
 
 ###
 
@@ -132,10 +133,10 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3YWM3MWQ1M
 # get all companies
 
 GET https://multi-agents-production.up.railway.app/api/v1/company HTTP/1.1
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3YWRiN2I2NTI1ODBmMTQ2Y2VlOTI0MCIsIm5hbWUiOiJTc2VuZGVnZXlhIEFsYmVydCIsImlhdCI6MTczOTUzNTk4MywiZXhwIjoxNzM5NTM3NzgzfQ.j2mju35ixyFpIreu75DuSS36_NDV2rwZwZkO4AczfSs
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3YWRjMzk2NTI1ODBmMTQ2Y2VlOTI0NCIsIm5hbWUiOiJTc2VuZGVnZXlhIEFsYmVydCIsImlhdCI6MTczOTY4ODA5OCwiZXhwIjoxNzM5Njg5ODk4fQ.zoVlDJt1zGffG-JCU0zM4fz2BjxM91b_CImlCL2iHJM
 
 ###
-PUT http://localhost:3000/api/v1/company/67adf1eef3b7324d42e65642 HTTP/1.1
+PUT https://multi-agents-production.up.railway.app/api/v1/company/67adf1eef3b7324d42e65642 HTTP/1.1
 content-type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3YWM3MWQ1MjEwM2NjMzhlMTk5MjhmOSIsIm5hbWUiOiJTc2VuZGVnZXlhIEFsYmVydCIsImlhdCI6MTczOTQzOTM4MywiZXhwIjoxNzM5NDQxMTgzfQ.7hjqlw9snnExy1_j5AuvhHe66zdiksvM-uChCSYrgBU
 
@@ -155,7 +156,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3YWM3MWQ1M
 
 ###
 # api to create agents
-POST http://localhost:3000/api/v1/agents HTTP/1.1
+POST https://multi-agents-production.up.railway.app/api/v1/agents HTTP/1.1
 content-type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3YWM3MWQ1MjEwM2NjMzhlMTk5MjhmOSIsIm5hbWUiOiJTc2VuZGVnZXlhIEFsYmVydCIsImlhdCI6MTczOTM2ODQ4MCwiZXhwIjoxNzM5MzcwMjgwfQ.Ok1N_DbcKPVwFAmF--FtWx849qUCm_PGR_eK02IRQXQ
 
@@ -187,17 +188,16 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3YWM3MWQ1M
 # api to get all agents
 GET https://multi-agents-production.up.railway.app/api/v1/agents HTTP/1.1
 content-type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3YWRiN2I2NTI1ODBmMTQ2Y2VlOTI0MCIsIm5hbWUiOiJTc2VuZGVnZXlhIEFsYmVydCIsImlhdCI6MTczOTUyMjI5MywiZXhwIjoxNzM5NTI0MDkzfQ.r2qaCsXXbmaOBIQ77aCuFRPaun-vJcEqaLHfaD95_VI
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3YWRjMzk2NTI1ODBmMTQ2Y2VlOTI0NCIsIm5hbWUiOiJTc2VuZGVnZXlhIEFsYmVydCIsImlhdCI6MTczOTY4ODA5OCwiZXhwIjoxNzM5Njg5ODk4fQ.zoVlDJt1zGffG-JCU0zM4fz2BjxM91b_CImlCL2iHJM
 
 ###
 
 
 ###
 # api to get single agent
-GET http://localhost:3000/api/v1/agents/67aca2751cdcc2e11a6b217d HTTP/1.1
+GET https://multi-agents-production.up.railway.app/api/v1/agents/67aca2751cdcc2e11a6b217d HTTP/1.1
 content-type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3YWRiYzk3ZjZhNDljZWM5ZDFlZjZkZSIsIm5hbWUiOiJTc2VuZGVnZXlhIEFsYmVydCIsImlhdCI6MTczOTUzODEyNiwiZXhwIjoxNzM5NTM5OTI2fQ.ONHQqpHrPLSYaeI20hHtumBThKdB6QEc57Zs5aswZW0
-
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3YWRjMzk2NTI1ODBmMTQ2Y2VlOTI0NCIsIm5hbWUiOiJTc2VuZGVnZXlhIEFsYmVydCIsImlhdCI6MTczOTY1NTIxNywiZXhwIjoxNzM5NjU3MDE3fQ.yIlOWmNCqMc9KKFGaZI_sk7FQX73gWNp2bJzwamZwVg
 ###
 
 
@@ -205,7 +205,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3YWRiYzk3Z
 
 ###
 # api to update agents
-PUT http://localhost:3000/api/v1/agents/67aca2751cdcc2e11a6b217d HTTP/1.1
+PUT https://multi-agents-production.up.railway.app/api/v1/agents/67aca2751cdcc2e11a6b217d HTTP/1.1
 content-type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3YWM3MWQ1MjEwM2NjMzhlMTk5MjhmOSIsIm5hbWUiOiJTc2VuZGVnZXlhIEFsYmVydCIsImlhdCI6MTczOTQzMzY4OSwiZXhwIjoxNzM5NDM1NDg5fQ.hJTeLHXHowQfYnotPaP7P3AjdrNqPgQXyNUxz0c45OU
 
@@ -220,7 +220,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3YWM3MWQ1M
 
 
 ###
-POST http://localhost:3000/api/v1/purchasedagents HTTP/1.1
+POST https://multi-agents-production.up.railway.app/api/v1/purchasedagents HTTP/1.1
 content-type: application/json 
 
 {
@@ -245,7 +245,7 @@ content-type: application/json
 
 
 ###
-POST http://localhost:3000/api/v1/purchasedagents/withacount HTTP/1.1
+POST https://multi-agents-production.up.railway.app/api/v1/purchasedagents/withacount HTTP/1.1
 content-type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3YWRiYzk3ZjZhNDljZWM5ZDFlZjZkZSIsIm5hbWUiOiJTc2VuZGVnZXlhIEFsYmVydCIsImlhdCI6MTczOTUzODEyNiwiZXhwIjoxNzM5NTM5OTI2fQ.ONHQqpHrPLSYaeI20hHtumBThKdB6QEc57Zs5aswZW0
 
@@ -260,7 +260,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3YWRiYzk3Z
 ###
 
 
-GET http://localhost:3000/api/v1/purchasedagents/67ae5ee1c8bb70ec199f6bc3 HTTP/1.1
+GET https://multi-agents-production.up.railway.app/api/v1/purchasedagents/67ae5ee1c8bb70ec199f6bc3 HTTP/1.1
 content-type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3YWRiYzk3ZjZhNDljZWM5ZDFlZjZkZSIsIm5hbWUiOiJTc2VuZGVnZXlhIEFsYmVydCIsImlhdCI6MTczOTU0MDA0NywiZXhwIjoxNzM5NTQxODQ3fQ.Sm1za8VG6Mpl5cnIlc3Tmfmu2VlulIQ69UDFiRxbAlk
 
