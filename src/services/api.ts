@@ -232,3 +232,23 @@ export async function updateAgent<T = any>(
 export async function purchaseAgent<T = any>(purchaseData: any): Promise<T> {
   return post<T>("/purchasedagents", purchaseData);
 }
+
+export async function purchaseAgentWithAccount<T = any>(
+  purchaseData: {
+    company_id: string;
+    plan: string;
+    amount: string;
+    period: number;
+    agent_id: string;
+  },
+  token: string
+): Promise<T> {
+  return post<T>("/purchasedagents/withacount", purchaseData, token);
+}
+
+export async function getPurchasedAgents<T = any>(
+  companyId: string,
+  token: string
+): Promise<T> {
+  return get<T>(`/purchasedagents/withcompayid/${companyId}`, token);
+}

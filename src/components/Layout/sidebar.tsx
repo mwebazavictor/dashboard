@@ -1,5 +1,5 @@
 "use client";
-import { Home, Search, Settings, KeyRound, Ticket, BookPlus } from "lucide-react";
+import { Home, Search, Settings, KeyRound, Ticket, BookPlus, DollarSign } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 import {
@@ -23,6 +23,11 @@ const items = [
     title: "Manage Agents",
     url: "/agents/manage",
     icon: Ticket,
+  },
+  {
+    title:'Purchase Agents',
+    url: '/agents/purchase',
+    icon:DollarSign
   },
   {
     title: "Settings",

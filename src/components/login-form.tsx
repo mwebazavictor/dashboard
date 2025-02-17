@@ -43,7 +43,7 @@ export function LoginForm({
       Cookies.set("loggedUserInfo", JSON.stringify(data.user), {
         secure: process.env.NODE_ENV === "production", // Only use secure cookies in production
         sameSite: "Strict",
-      })
+      });
       // Redirect or update state as needed
       console.log("Login successful", data);
       router.push('/dashboard')
