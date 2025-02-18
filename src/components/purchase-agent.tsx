@@ -224,7 +224,7 @@ export default function PurchaseAgent() {
             </div>
           </CardContent>
           <CardFooter className="border-t border-zinc-200 py-6">
-            <p className="text-zinc-600 text-center w-full">Don't miss your favourite deals.</p>
+            <p className="text-zinc-600 text-center w-full">Don&apos;t miss your favourite deals.</p>
           </CardFooter>
         </Card>
       )}
