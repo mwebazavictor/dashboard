@@ -252,3 +252,27 @@ export async function getPurchasedAgents<T = any>(
 ): Promise<T> {
   return get<T>(`/purchasedagents/withcompayid/${companyId}`, token);
 }
+
+// =========Uploading Document Route ==================
+export async function uploadDocument(file: File, userId: string, companyId: string, token: string): Promise<any> {
+  const formData = new FormData();
+  formData.append("document", file);
+  formData.append("user_id", userId);
+  formData.append("company_id", companyId);
+
+  const headers: Record<string, string> = {};
+  if (token) headers.Authorization = `Bearer ${token}`;
+
+  const res = await fetch(`${API_URL}/upload`, {
+    method: "POST",
+    headers, // No need to set "Content-Type", it will be automatically set by FormData
+    body: formData,
+  });
+
+  if (!res.ok) {
+    const errorData = await res.json();
+    throw new Error(errorData.message || "File upload failed");
+  }
+
+  return res.json();
+}

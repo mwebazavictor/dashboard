@@ -60,7 +60,7 @@ export default function PurchaseAgent() {
     }
     const info = JSON.parse(data);
     const purchaseData = {
-      company_id: info.company_id,
+      company_id: info.Company_id,
       plan,
       amount,
       period,

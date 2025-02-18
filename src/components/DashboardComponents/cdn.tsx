@@ -5,7 +5,20 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Check, Copy, Code2 } from "lucide-react";
 
-export default function CopyBox({ text = "<script> This is the link </script>" }) {
+// Define the props for the component
+interface CopyBoxProps {
+  token: string;
+}
+
+export default function CopyBox({ token }: CopyBoxProps) {
+  // Dynamically generate the code snippet using the passed token
+  const text = `<script>
+  var token = "${token}";
+  var script = document.createElement("script");
+  script.src = "https://test.autofore.com/index.js?token=" + token;
+  document.head.appendChild(script);
+</script>`;
+
   const [copied, setCopied] = useState(false);
 
   const handleCopy = async () => {
@@ -22,21 +35,22 @@ export default function CopyBox({ text = "<script> This is the link </script>" }
     <div className="flex flex-col space-y-4 w-full max-w-xl">
       <div className="flex items-center space-x-3 p-4 bg-gray-50 rounded-lg border border-gray-200">
         <Code2 className="h-5 w-5 text-gray-500" />
-        <Input 
-          value={text} 
-          readOnly 
-          className="font-mono text-sm bg-white" 
+        <Input
+          value={text}
+          readOnly
+          className="font-mono text-sm bg-white"
         />
-        <Button 
-          size="icon" 
+        <Button
+          size="icon"
           variant="outline"
           onClick={handleCopy}
           className="hover:bg-gray-100"
         >
-          {copied ? 
-            <Check className="h-4 w-4 text-green-500" /> : 
+          {copied ? (
+            <Check className="h-4 w-4 text-green-500" />
+          ) : (
             <Copy className="h-4 w-4 text-gray-500" />
-          }
+          )}
         </Button>
       </div>
       {copied && (

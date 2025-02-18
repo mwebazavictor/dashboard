@@ -2,50 +2,55 @@
 import { useState, useEffect } from "react";
 import Cookies from "js-cookie";
 import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
+Card,
+CardContent,
+CardHeader,
+CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
-  Sheet,
-  SheetClose,
-  SheetContent,
-  SheetDescription,
-  SheetFooter,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
+Sheet,
+SheetClose,
+SheetContent,
+SheetDescription,
+SheetFooter,
+SheetHeader,
+SheetTitle,
+SheetTrigger,
 } from "@/components/ui/sheet";
-import { getAgents } from "@/services/api";
-import CopyBox from "./DashboardComponents/cdn";
+import CopyBox from "@/components/DashboardComponents/cdn";
 import { Users, Rocket, Code2 } from "lucide-react";
+import {getPurchasedAgents} from "@/services/api"
 
-export default function AgentCard() {
-  const [agents, setAgents] = useState<Array<any>>([]);
-  const [error, setError] = useState<string>("");
-  
-  const accessToken = Cookies.get("accessToken") ?? '';
-  
-  async function fetchAgents() {
-    try {
-      const data = await getAgents(accessToken);
-      const activeAgents = data.filter((agent: any) => agent.status === "active");
-      setAgents(activeAgents);
-    } catch (err: unknown) {
-      if (err instanceof Error) {
-        setError(err.message);
-      } else {
-        setError("Unknown Error Occurred");
+
+export default function AgentsOwned(){
+  const [agents,setAgents] = useState<Array<any>>([]);
+  const [error, setError] =useState('');
+  async function fetchPurchasedAgents(){
+      try{
+          const accessToken = Cookies.get("accessToken") ?? '';
+          const info = Cookies.get('loggedUserInfo');
+          console.log(info)
+          if (!info){
+              console.log(info)
+              setError('User is not logged in')
+          }
+          const parsedInfo = JSON.parse(info ?? '{}');
+          const companyId = parsedInfo.Company_id 
+          const data = await getPurchasedAgents(companyId,accessToken)
+          const purchasedAgents = data.purchasedAgents || [];
+          setAgents(purchasedAgents);
+      } catch(err : unknown) {
+              if (err instanceof Error) {
+                setError(err.message);
+              } else {
+                setError("Error Occurred");
+              }
+            }
       }
-    }
-  }
-  
-  useEffect(() => {
-    fetchAgents();
-  }, []);
-  
+      useEffect(()=>{
+          fetchPurchasedAgents();
+      },[]);
   return (
     <div className="min-h-screen w-full p-8">
       <div className="max-w-7xl mx-auto">
@@ -104,7 +109,7 @@ export default function AgentCard() {
                               <div className="text-sm text-zinc-600">
                                 Copy and paste the following code into your HTML file:
                               </div>
-                              <CopyBox />
+                              <CopyBox token = {agent.company_id}/>
                             </div>
                             <SheetFooter>
                               <SheetClose asChild>
