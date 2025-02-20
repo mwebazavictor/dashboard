@@ -55,10 +55,10 @@ export default function AgentsOwned(){
     <div className="min-h-screen w-full p-8">
       <div className="max-w-7xl mx-auto">
         <Card className="bg-white shadow-lg rounded-xl border-zinc-200">
-          <CardHeader className="border-b border-zinc-200 bg-gradient-to-r from-orange-400 to-yellow-400 p-4 rounded-t-xl">
+          <CardHeader className="border-b border-zinc-200 bg-gradient-to-r from-zinc-900 to-zinc-700 p-6 rounded-t-xl">
             <div className="flex items-center space-x-3">
-              <Users className="h-6 w-6 text-zinc-700" />
-              <CardTitle className="text-2xl font-bold text-zinc-800">Active Agents</CardTitle>
+            <Users className="h-6 w-6 text-white" />
+            <CardTitle className="text-2xl font-bold text-white">Active Agents</CardTitle>
             </div>
           </CardHeader>
           <CardContent className="p-8">

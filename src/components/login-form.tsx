@@ -47,8 +47,7 @@ export function LoginForm({
       // Redirect or update state as needed
       console.log("Login successful", data);
       router.push('/dashboard')
-
-    } catch (err: unknown) {
+      } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message);
       } else {

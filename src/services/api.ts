@@ -276,3 +276,31 @@ export async function uploadDocument(file: File, userId: string, companyId: stri
 
   return res.json();
 }
+
+// ===== Company APIs =====
+
+/**
+ * Registers a new company without requiring an authorization token.
+ *
+ * Endpoint:
+ * POST https://multi-agents-production.up.railway.app/api/v1/company
+ *
+ * Payload:
+ * {
+ *   "companyname": "Tubayo",
+ *   "companyemail": "bobii@gmail.com",
+ *   "companylocation": "Nakawa",
+ *   "industry": "software enterprise",
+ *   "name": "Ssendegeya Albert",
+ *   "email": "bobii@gmail.com",
+ *   "password": "123456",
+ *   "phone": "0786567850",
+ *   "role": "admin"
+ * }
+ *
+ * Note: No bearer token is required.
+ */
+export async function registerCompany<T = any>(companyData: any): Promise<T> {
+  // We omit the token parameter since this route doesn't require authorization.
+  return post<T>("/company", companyData);
+}

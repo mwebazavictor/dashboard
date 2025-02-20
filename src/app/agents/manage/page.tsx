@@ -1,6 +1,25 @@
 "use client";
-import { useState, useEffect } from "react";
+// Types
+interface Agent {
+  _id: string;
+  name: string;
+  title: string;
+  description: string;
+  avatar?: string;
+}
+
+interface UploadState {
+  progress: number;
+  status: 'idle' | 'uploading' | 'success' | 'error';
+  error?: string;
+}
+
+// Custom hooks
+import { useState, useEffect, useCallback, useRef } from "react";
 import Cookies from "js-cookie";
+import { AnimatePresence, motion } from "framer-motion";
+import { useVirtualizer } from '@tanstack/react-virtual';
+import { toast } from 'sonner';
 import {
   Card,
   CardContent,
@@ -16,178 +35,450 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Users, BriefcaseBusiness } from "lucide-react";
+import { 
+  Users, 
+  BriefcaseBusiness, 
+  Upload, 
+  Eye,
+  AlertCircle,
+  CheckCircle2,
+  Loader2 
+} from "lucide-react";
 import { getPurchasedAgents, uploadDocument } from "@/services/api";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Progress } from "@/components/ui/progress";
 
-export default function AgentsOwned() {
-  const [agents, setAgents] = useState<Array<any>>([]);
-  const [error, setError] = useState("");
+// Custom hook for file handling
+const useFileUpload = () => {
   const [file, setFile] = useState<File | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string>(""); // State for PDF preview URL
+  const [previewUrl, setPreviewUrl] = useState<string>("");
+  const [uploadState, setUploadState] = useState<UploadState>({
+    progress: 0,
+    status: 'idle'
+  });
 
-  // Fetch purchased agents from the backend
-  async function fetchPurchasedAgents() {
-    try {
-      const accessToken = Cookies.get("accessToken") ?? "";
-      const info = Cookies.get("loggedUserInfo");
-      console.log(info);
-      if (!info) {
-        console.log(info);
-        setError("User is not logged in");
-        return; // Exit early if no user info is found
-      }
-      const parsedInfo = JSON.parse(info ?? "{}");
-      const companyId = parsedInfo.Company_id; // Ensure the property name matches your cookie data
-      const data = await getPurchasedAgents(companyId, accessToken);
-      const purchasedAgents = data.purchasedAgents || [];
-      setAgents(purchasedAgents);
-    } catch (err: unknown) {
-      if (err instanceof Error) {
-        setError(err.message);
-      } else {
-        setError("Error Occurred");
-      }
-    }
-  }
-
-  useEffect(() => {
-    fetchPurchasedAgents();
+  const handleFileChange = useCallback((file: File) => {
+    setFile(file);
+    const preview = URL.createObjectURL(file);
+    setPreviewUrl(preview);
   }, []);
 
-  // Handle file input changes and set the preview URL
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (event.target.files && event.target.files.length > 0) {
-      const selectedFile = event.target.files[0];
-      setFile(selectedFile);
-      // Create a preview URL for the selected PDF file
-      const preview = URL.createObjectURL(selectedFile);
-      setPreviewUrl(preview);
-    }
-  };
+  const resetUpload = useCallback(() => {
+    setFile(null);
+    setPreviewUrl("");
+    setUploadState({ progress: 0, status: 'idle' });
+  }, []);
 
-  // Handle the upload of the PDF document
-  const handleUpload = async () => {
-    if (!file) {
-      alert("Please select a file first.");
-      return;
+  return { file, previewUrl, uploadState, setUploadState, handleFileChange, resetUpload };
+};
+
+// Agent Card Component
+const AgentCard = ({ agent, onTrain }: { agent: Agent; onTrain: () => void }) => (
+  <motion.div
+    initial={{ opacity: 0, y: 20 }}
+    animate={{ opacity: 1, y: 0 }}
+    exit={{ opacity: 0, y: -20 }}
+    transition={{ duration: 0.2 }}
+  >
+    <Card className="group border border-zinc-200 hover:border-zinc-300 transition-all duration-200 hover:shadow-md bg-white">
+      <CardContent className="p-4">
+        <div className="flex items-center justify-between flex-wrap gap-2">
+          <div className="flex items-center space-x-2">
+            <motion.div
+              whileHover={{ scale: 1.05 }}
+              className="relative h-10 w-10"
+            >
+              <div className="absolute inset-0 bg-gradient-to-br from-zinc-800 to-zinc-900 rounded-full" />
+              <div className="absolute inset-0 flex items-center justify-center">
+                <span className="text-white font-semibold text-base">
+                  {agent.name.charAt(0)}
+                </span>
+              </div>
+            </motion.div>
+            <div className="flex flex-col">
+              <span className="font-medium text-zinc-900 text-base group-hover:text-zinc-700 transition-colors">
+                {agent.name}
+              </span>
+              <span className="text-xs text-zinc-500">
+                {agent.title}
+              </span>
+            </div>
+          </div>
+          <div className="flex items-center space-x-2">
+            <p className="text-zinc-600 max-w-xs line-clamp-2 text-sm">
+              {agent.description}
+            </p>
+            <Button
+              onClick={onTrain}
+              className="bg-zinc-900 hover:bg-zinc-800 text-white transform transition-all duration-200 hover:scale-105 focus:ring-2 focus:ring-zinc-900 focus:ring-offset-2 text-sm px-3 py-1"
+            >
+              <BriefcaseBusiness className="h-3 w-3 mr-1" />
+              Train
+            </Button>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  </motion.div>
+);
+
+
+// Upload Dialog Component
+const UploadDialog = ({
+  isOpen,
+  onClose,
+  onUpload
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  onUpload: (file: File) => Promise<void>;
+}) => {
+  const {
+    file,
+    previewUrl,
+    uploadState,
+    setUploadState,
+    handleFileChange,
+    resetUpload
+  } = useFileUpload();
+  const [dialogStep, setDialogStep] = useState<'upload' | 'preview'>('upload');
+  const [hasConsented, setHasConsented] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Handle drag and drop
+  const onDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    const droppedFile = e.dataTransfer.files[0];
+    if (droppedFile?.type === 'application/pdf') {
+      handleFileChange(droppedFile);
+    } else {
+      toast.error('Please upload a PDF file');
     }
+  }, [handleFileChange]);
+
+  const handleClose = useCallback(() => {
+    resetUpload();
+    setDialogStep('upload');
+    setHasConsented(false);
+    onClose();
+  }, [onClose, resetUpload]);
+
+  const handleUpload = async () => {
+    if (!file || !hasConsented) return;
+    
     try {
-      const accessToken = Cookies.get("accessToken") ?? "";
-      const info = Cookies.get("loggedUserInfo");
-      console.log(info);
-      if (!info) {
-        console.log(info);
-        setError("User is not logged in");
-        return;
-      }
-      const parsedInfo = JSON.parse(info ?? "{}");
-      const companyId = parsedInfo.Company_id; // Ensure property name matches your cookie data
-      const userId = parsedInfo.id;
-      console.log(userId,companyId)
-      const response = await uploadDocument(file, userId, companyId, accessToken);
-      console.log("File uploaded successfully:", response);
+      setUploadState({ progress: 0, status: 'uploading' });
+      await onUpload(file);
+      setUploadState({ progress: 100, status: 'success' });
+      toast.success('Document uploaded successfully');
+      handleClose();
     } catch (error) {
-      console.error("Upload failed:", error);
+      setUploadState({ 
+        progress: 0, 
+        status: 'error', 
+        error: 'Upload failed. Please try again.' 
+      });
+      toast.error('Upload failed. Please try again.');
     }
   };
 
   return (
-    <div className="min-h-screen w-full p-8">
-      <div className="max-w-7xl mx-auto">
-        <Card className="bg-white shadow-lg rounded-xl border-zinc-200">
-          <CardHeader className="border-b border-zinc-200 bg-gradient-to-r from-orange-400 to-yellow-400 p-4 rounded-t-xl">
-            <div className="flex items-center space-x-3">
-              <Users className="h-6 w-6 text-zinc-700" />
-              <CardTitle className="text-2xl font-bold text-zinc-800">
+    <Dialog open={isOpen} onOpenChange={handleClose}>
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>
+            {dialogStep === 'upload' ? 'Upload Document' : 'Preview Document'}
+          </DialogTitle>
+          <DialogDescription>
+            {dialogStep === 'upload' 
+              ? 'Select a PDF file to upload'
+              : 'Review your document before uploading'}
+          </DialogDescription>
+        </DialogHeader>
+
+        <AnimatePresence mode="wait">
+          {dialogStep === 'upload' ? (
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 20 }}
+              className="space-y-4"
+            >
+              <div
+                onDrop={onDrop}
+                onDragOver={(e) => e.preventDefault()}
+                className="relative"
+              >
+                <label className="flex flex-col items-center justify-center w-full h-64 border-2 border-zinc-300 border-dashed rounded-lg cursor-pointer bg-zinc-50 hover:bg-zinc-100 transition-colors">
+                  <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                    <Upload className="w-8 h-8 mb-4 text-zinc-500" />
+                    <p className="mb-2 text-sm text-zinc-500">
+                      <span className="font-semibold">Click to upload</span> or drag and drop
+                    </p>
+                    <p className="text-xs text-zinc-500">PDF files only (max 10MB)</p>
+                  </div>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    className="hidden"
+                    accept="application/pdf"
+                    onChange={(e) => {
+                      const selectedFile = e.target.files?.[0];
+                      if (selectedFile) handleFileChange(selectedFile);
+                    }}
+                  />
+                </label>
+                {uploadState.status === 'error' && (
+                  <div className="mt-4 p-4 bg-red-50 text-red-600 rounded-lg flex items-center">
+                    <AlertCircle className="h-5 w-5 mr-2" />
+                    {uploadState.error}
+                  </div>
+                )}
+              </div>
+              {file && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                >
+                  <Button 
+                    onClick={() => setDialogStep('preview')}
+                    className="w-full bg-zinc-900 hover:bg-zinc-800"
+                  >
+                    <Eye className="h-4 w-4 mr-2" />
+                    Preview Document
+                  </Button>
+                </motion.div>
+              )}
+            </motion.div>
+          ) : (
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              className="space-y-4"
+            >
+              <div className="border rounded-lg overflow-hidden">
+                <iframe
+                  src={previewUrl}
+                  className="w-full h-96"
+                  title="PDF Preview"
+                />
+              </div>
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="consent"
+                  checked={hasConsented}
+                  onCheckedChange={(checked) => setHasConsented(checked as boolean)}
+                />
+                <label 
+                  htmlFor="consent" 
+                  className="text-sm text-zinc-600"
+                >
+                  I confirm this is the correct document to upload
+                </label>
+              </div>
+              {uploadState.status === 'uploading' && (
+                <div className="space-y-2">
+                  <Progress value={uploadState.progress} />
+                  <p className="text-sm text-zinc-500 text-center">
+                    Uploading... {uploadState.progress}%
+                  </p>
+                </div>
+              )}
+              <div className="flex space-x-2">
+                <Button 
+                  variant="outline" 
+                  onClick={() => setDialogStep('upload')}
+                  className="flex-1"
+                  disabled={uploadState.status === 'uploading'}
+                >
+                  Back
+                </Button>
+                <Button
+                  onClick={handleUpload}
+                  disabled={!hasConsented || uploadState.status === 'uploading'}
+                  className="flex-1 bg-zinc-900 hover:bg-zinc-800 disabled:bg-zinc-300"
+                >
+                  {uploadState.status === 'uploading' ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Uploading...
+                    </>
+                  ) : (
+                    <>
+                      <Upload className="h-4 w-4 mr-2" />
+                      Upload Document
+                    </>
+                  )}
+                </Button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+// Main Component
+export default function AgentsOwned() {
+  const [agents, setAgents] = useState<Agent[]>([]);
+  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
+  const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  const parentRef = useRef<HTMLDivElement>(null);
+  
+  // Virtual list for performance
+  const rowVirtualizer = useVirtualizer({
+    count: agents.length,
+    getScrollElement: () => parentRef.current,
+    estimateSize: () => 100,
+    overscan: 5
+  });
+
+  const fetchAgents = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      const accessToken = Cookies.get("accessToken") ?? "";
+      const info = Cookies.get("loggedUserInfo");
+      if (!info) throw new Error("User is not logged in");
+      
+      const parsedInfo = JSON.parse(info);
+      const data = await getPurchasedAgents(parsedInfo.Company_id, accessToken);
+      setAgents(data.purchasedAgents || []);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Error Occurred");
+      toast.error("Failed to load agents");
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchAgents();
+  }, [fetchAgents]);
+
+  const handleUpload = async (file: File) => {
+    const accessToken = Cookies.get("accessToken") ?? "";
+    const info = Cookies.get("loggedUserInfo");
+    if (!info) throw new Error("User is not logged in");
+    
+    const parsedInfo = JSON.parse(info);
+    await uploadDocument(
+      file, 
+      parsedInfo.id, 
+      parsedInfo.Company_id, 
+      accessToken
+    );
+  };
+
+  return (
+    <div className="min-h-screen w-full p-8 bg-zinc-50">
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="max-w-7xl mx-auto"
+      >
+        <Card className="bg-white shadow-xl rounded-xl border-zinc-200">
+          <CardHeader className="border-b border-zinc-200 bg-gradient-to-r from-zinc-900 to-zinc-700 p-6 rounded-t-xl">
+            <motion.div 
+              className="flex items-center space-x-3"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}>
+              <Users className="h-6 w-6 text-white" />
+              <CardTitle className="text-2xl font-bold text-white">
                 Train Your Agent Here
               </CardTitle>
-            </div>
+            </motion.div>
           </CardHeader>
+
           <CardContent className="p-8">
             {error && (
-              <div className="mb-8 p-4 bg-red-50 text-red-600 rounded-lg flex items-center">
-                <span className="mr-2">⚠️</span> Error: {error}
+              <motion.div
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mb-8 p-4 bg-red-50 text-red-600 rounded-lg flex items-center"
+              >
+                <AlertCircle className="h-5 w-5 mr-2" />
+                {error}
+              </motion.div>
+            )}
+
+            {isLoading ? (
+              <div className="space-y-4">
+                {[...Array(3)].map((_, index) => (
+                  <div
+                    key={index}
+                    className="animate-pulse"
+                  >
+                    <div className="h-24 bg-zinc-100 rounded-lg" />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div
+                ref={parentRef}
+                className="h-[calc(100vh-300px)] overflow-auto"
+              >
+                <div
+                  style={{
+                    height: `${rowVirtualizer.getTotalSize()}px`,
+                    width: '100%',
+                    position: 'relative',
+                  }}
+                >
+                  {rowVirtualizer.getVirtualItems().map((virtualRow) => {
+                    const agent = agents[virtualRow.index];
+                    return (
+                      <div
+                        key={agent._id}
+                        style={{
+                          position: 'absolute',
+                          top: 0,
+                          left: 0,
+                          width: '100%',
+                          height: `${virtualRow.size}px`,
+                          transform: `translateY(${virtualRow.start}px)`,
+                        }}
+                      >
+                        <AgentCard
+                          agent={agent}
+                          onTrain={() => {
+                            setSelectedAgent(agent);
+                            setIsDialogOpen(true);
+                          }}
+                        />
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             )}
-            <div className="grid gap-6">
-              {agents.map((agent) => (
-                <Card
-                  key={agent._id}
-                  className="border border-zinc-200 hover:border-zinc-300 transition-all duration-200 hover:shadow-md bg-white"
-                >
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between flex-wrap gap-4">
-                      <div className="flex items-center space-x-4">
-                        <span className="h-12 w-12 rounded-full bg-zinc-100 flex items-center justify-center">
-                          <span className="text-zinc-700 font-semibold text-lg">
-                            {agent.name.charAt(0)}
-                          </span>
-                        </span>
-                        <div className="flex flex-col">
-                          <span className="font-medium text-zinc-800 text-lg">
-                            {agent.name}
-                          </span>
-                          <span className="text-sm text-zinc-500">
-                            {agent.title}
-                          </span>
-                        </div>
-                      </div>
-                      <div className="flex items-center space-x-4">
-                        <p className="text-zinc-600 max-w-xl">
-                          {agent.description}
-                        </p>
-                        <Dialog>
-                          <DialogTrigger>
-                            <Button className="bg-zinc-900 hover:bg-zinc-800 text-white">
-                              <BriefcaseBusiness className="h-4 w-4 mr-2" />
-                              Train Now
-                            </Button>
-                          </DialogTrigger>
-                          <DialogContent>
-                            <DialogHeader>
-                              <DialogTitle>Upload PDF Document</DialogTitle>
-                              <DialogDescription>
-                                Please select a PDF file to preview and submit.
-                              </DialogDescription>
-                            </DialogHeader>
-                            {/* PDF File Input */}
-                            <input
-                              type="file"
-                              accept="application/pdf"
-                              onChange={handleFileChange}
-                            />
-                            {/* PDF Preview */}
-                            {previewUrl && (
-                              <div className="mt-4">
-                                <p className="mb-2 font-medium">PDF Preview:</p>
-                                <iframe
-                                  src={previewUrl}
-                                  width="100%"
-                                  height="400px"
-                                  className="border rounded"
-                                />
-                              </div>
-                            )}
-                            {/* Upload Button */}
-                            <Button onClick={handleUpload} className="mt-4">
-                              Upload PDF
-                            </Button>
-                            {/*
-                              The above code allows the user to:
-                              1. Select a PDF file using the file input.
-                              2. Preview the selected PDF in an iframe.
-                              3. Click the "Upload PDF" button to submit the file.
-                            */}
-                          </DialogContent>
-                        </Dialog>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
           </CardContent>
         </Card>
+      </motion.div>
+
+      {/* Upload Dialog */}
+      <UploadDialog
+        isOpen={isDialogOpen}
+        onClose={() => {
+          setIsDialogOpen(false);
+          setSelectedAgent(null);
+        }}
+        onUpload={handleUpload}
+      />
+
+      {/* Toast Container for Notifications */}
+      <div className="fixed bottom-4 right-4 z-50">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 20 }}
+        >
+          {/* Toast messages will be rendered here by the toast library */}
+        </motion.div>
       </div>
     </div>
   );
