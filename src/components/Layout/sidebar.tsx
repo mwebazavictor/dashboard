@@ -51,12 +51,16 @@ const unAuthItem = [
 
 export function AppSidebar() {
   const pathname = usePathname();
-  const publicRoutes: Array<string> = ["/", "/login", "/register"];
-  const [isRoutePublic, setIsRoutePublic] = useState<boolean>(false);
+  const [mounted, setMounted] = useState(false);
+  const publicRoutes: string[] = ["/", "/login", "/register"];
 
   useEffect(() => {
-    setIsRoutePublic(publicRoutes.includes(pathname));
-  }, [pathname]);
+    setMounted(true);
+  }, []);
+
+  if (!mounted || !pathname) return null;
+
+  const isRoutePublic = publicRoutes.includes(pathname);
 
   return (
     <Sidebar className="border-r border-zinc-200 bg-white w-64">
