@@ -16,7 +16,7 @@ export function Navbar() {
             <NavigationMenu>
                 <NavigationMenuList>
                     <NavigationMenuItem>
-                        <NavigationMenuTrigger><SidebarTrigger /></NavigationMenuTrigger>
+                        <SidebarTrigger />
                     </NavigationMenuItem>
                </NavigationMenuList>
             </NavigationMenu>
