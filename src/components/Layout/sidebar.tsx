@@ -67,7 +67,10 @@ export function AppSidebar() {
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel className="px-6 py-4 border-b border-zinc-200">
-            <h1 className="text-xl font-bold text-zinc-800">Tubayo</h1>
+            <a href="/">
+              <h1 className="text-xl font-bold text-zinc-800">Tubayo</h1>
+            </a>
+            
           </SidebarGroupLabel>
           <SidebarGroupContent className="py-4">
             <SidebarMenu>
