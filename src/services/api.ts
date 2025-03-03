@@ -19,12 +19,23 @@ async function refreshAccessToken(
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ token: refreshTokenValue }),
   });
+
   if (!res.ok) {
-    const errorData: ErrorResponse = await res.json();
-    throw new Error(errorData.message || "Failed to refresh token");
+    const contentType = res.headers.get("Content-Type") || "";
+    let errorMessage = "Failed to refresh token";
+    if (contentType.includes("application/json")) {
+      const errorData: ErrorResponse = await res.json();
+      errorMessage = errorData.message || errorMessage;
+    } else {
+      // If not JSON, assume plain text (e.g., "Forbidden")
+      const text = await res.text();
+      errorMessage = text || errorMessage;
+    }
+    throw new Error(errorMessage);
   }
   return res.json();
 }
+
 
 /**
  * Generic POST helper that automatically refreshes tokens on a 403 response.
@@ -279,27 +290,6 @@ export async function uploadDocument(file: File, userId: string, companyId: stri
 
 // ===== Company APIs =====
 
-/**
- * Registers a new company without requiring an authorization token.
- *
- * Endpoint:
- * POST https://multi-agents-production.up.railway.app/api/v1/company
- *
- * Payload:
- * {
- *   "companyname": "Tubayo",
- *   "companyemail": "bobii@gmail.com",
- *   "companylocation": "Nakawa",
- *   "industry": "software enterprise",
- *   "name": "Ssendegeya Albert",
- *   "email": "bobii@gmail.com",
- *   "password": "123456",
- *   "phone": "0786567850",
- *   "role": "admin"
- * }
- *
- * Note: No bearer token is required.
- */
 export async function registerCompany<T = any>(companyData: any): Promise<T> {
   // We omit the token parameter since this route doesn't require authorization.
   return post<T>("/company", companyData);
