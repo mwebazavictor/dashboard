@@ -6,6 +6,8 @@ interface Agent {
   title: string;
   description: string;
   avatar?: string;
+  company_id: string;
+  agent_id: string;
 }
 
 interface UploadState {
@@ -41,12 +43,15 @@ import {
   Upload, 
   Eye,
   AlertCircle,
-  CheckCircle2,
-  Loader2 
+  Wrench,
+  Loader2, 
+  CirclePlus
 } from "lucide-react";
 import { getPurchasedAgents, uploadDocument } from "@/services/api";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Progress } from "@/components/ui/progress";
+import { Table, TableBody, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import QueryTable from "@/components/DashboardComponents/ManageTable";
 
 // Custom hook for file handling
 const useFileUpload = () => {
@@ -81,8 +86,8 @@ const AgentCard = ({ agent, onTrain }: { agent: Agent; onTrain: () => void }) =>
     transition={{ duration: 0.2 }}
   >
     <Card className="group border border-zinc-200 hover:border-zinc-300 transition-all duration-200 hover:shadow-md bg-white">
-      <CardContent className="p-4">
-        <div className="flex items-center justify-between flex-wrap gap-2">
+      <CardHeader className="p-4 border-b border-zinc-200">
+      <div className="flex items-center justify-between flex-wrap gap-2">
           <div className="flex items-center space-x-2">
             <motion.div
               whileHover={{ scale: 1.05 }}
@@ -108,15 +113,33 @@ const AgentCard = ({ agent, onTrain }: { agent: Agent; onTrain: () => void }) =>
             <p className="text-zinc-600 max-w-xs line-clamp-2 text-sm">
               {agent.description}
             </p>
-            <Button
+            
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent className="p-4 flex flex-row space-x-5 ">
+        <Button
               onClick={onTrain}
               className="bg-zinc-900 hover:bg-zinc-800 text-white transform transition-all duration-200 hover:scale-105 focus:ring-2 focus:ring-zinc-900 focus:ring-offset-2 text-sm px-3 py-1"
             >
               <BriefcaseBusiness className="h-3 w-3 mr-1" />
               Train
             </Button>
-          </div>
-        </div>
+            <Dialog>
+              <DialogTrigger>
+                <Button className="bg-zinc-900 hover:bg-zinc-800 text-white transform transition-all duration-200 hover:scale-105 focus:ring-2 focus:ring-zinc-900 focus:ring-offset-2 text-sm px-3 py-1">
+                  <Wrench className="h-3 w-3 mr-1" />
+                  Manage Queries
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <QueryTable purchasedAgentId={agent._id} // Change to agent.purchased_agent_id if available
+          token={Cookies.get("accessToken") || ""}
+          companyId={agent.company_id}
+          agentId = {agent.agent_id} />
+              </DialogContent>
+            </Dialog>
+          
       </CardContent>
     </Card>
   </motion.div>

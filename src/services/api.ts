@@ -294,3 +294,77 @@ export async function registerCompany<T = any>(companyData: any): Promise<T> {
   // We omit the token parameter since this route doesn't require authorization.
   return post<T>("/company", companyData);
 }
+/**
+ * Customer Support Query APIs
+ */
+
+// Create a new customer support query
+export async function createCustomerSupportQuery(
+  queryData: {
+    query: string;
+    company_id: string;
+    agent_id: string;
+    purchased_agent_id: string;
+  },
+  token: string
+): Promise<any> {
+  return post<any>("/customerSupportQuery", queryData, token);
+}
+
+// Get a single customer support query by its ID
+export async function getCustomerSupportQuery(
+  queryId: string,
+  token: string
+): Promise<any> {
+  return get<any>(`/customerSupportQuery/${queryId}`, token);
+}
+
+// Update an existing customer support query
+export async function updateCustomerSupportQuery(
+  queryId: string,
+  updateData: { query: string },
+  token: string
+): Promise<any> {
+  const headers: Record<string, string> = { "Content-Type": "application/json" };
+  if (token) headers.Authorization = `Bearer ${token}`;
+
+  const res = await fetch(`${API_URL}/customerSupportQuery/${queryId}`, {
+    method: "PUT",
+    headers,
+    body: JSON.stringify(updateData),
+  });
+
+  if (!res.ok) {
+    const errorData: ErrorResponse = await res.json();
+    throw new Error(errorData.message || "API request failed");
+  }
+  return res.json();
+}
+
+// Delete a customer support query by its ID
+export async function deleteCustomerSupportQuery(
+  queryId: string,
+  token: string
+): Promise<any> {
+  const headers: Record<string, string> = {};
+  if (token) headers.Authorization = `Bearer ${token}`;
+
+  const res = await fetch(`${API_URL}/customerSupportQuery/${queryId}`, {
+    method: "DELETE",
+    headers,
+  });
+
+  if (!res.ok) {
+    const errorData: ErrorResponse = await res.json();
+    throw new Error(errorData.message || "API request failed");
+  }
+  return res.json();
+}
+
+// Get all customer support queries by the purchased agent ID
+export async function getCustomerSupportQueriesByPurchasedAgent(
+  purchasedAgentId: string,
+  token: string
+): Promise<any> {
+  return get<any>(`/customerSupportQuery/withpurhasedid/${purchasedAgentId}`, token);
+}
