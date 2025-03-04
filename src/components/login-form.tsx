@@ -46,6 +46,9 @@ export function LoginForm({
       });
       // Redirect or update state as needed
       console.log("Login successful", data);
+      console.log(Cookies.get("loggedUserInfo"));
+      console.log(Cookies.get("accessToken"));
+      console.log(Cookies.get("refreshToken"));
       router.push('/dashboard')
       } catch (err: unknown) {
       if (err instanceof Error) {

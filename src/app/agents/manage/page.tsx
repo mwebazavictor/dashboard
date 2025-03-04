@@ -357,7 +357,8 @@ export default function AgentsOwned() {
   const rowVirtualizer = useVirtualizer({
     count: agents.length,
     getScrollElement: () => parentRef.current,
-    estimateSize: () => 100,
+    estimateSize: () => 150, // Estimate each row to be 200px high
+    measureElement: (el) => el.getBoundingClientRect().height,
     overscan: 5
   });
 
@@ -417,7 +418,7 @@ export default function AgentsOwned() {
             </motion.div>
           </CardHeader>
 
-          <CardContent className="p-8">
+          <CardContent className="flex flex-col p-8">
             {error && (
               <motion.div
                 initial={{ opacity: 0, y: -20 }}
