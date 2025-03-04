@@ -31,7 +31,12 @@ async function refreshAccessToken(
       const text = await res.text();
       errorMessage = text || errorMessage;
     }
-    throw new Error(errorMessage);
+    const error = new Error(errorMessage);
+    // Mark error as forbidden if appropriate
+    if (errorMessage.toLowerCase().includes("forbidden")) {
+      (error as any).isForbidden = true;
+    }
+    throw error;
   }
   return res.json();
 }
